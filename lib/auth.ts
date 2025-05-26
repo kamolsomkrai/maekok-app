@@ -1,67 +1,63 @@
 // lib/auth.ts
-import type { AuthOptions } from "next-auth";
+// import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
-import { compare } from "bcrypt";
+import bcrypt from "bcrypt";
+import type { NextAuthOptions } from "next-auth";
 
-export const authOptions: AuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  }
+}
+
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) return null;
-        const user = await prisma.staff.findUnique({
-          where: { email: credentials.email },
+        if (!credentials?.username || !credentials.password) return null;
+        const user = await prisma.user.findUnique({
+          where: { username: credentials.username },
         });
-        if (user && (await compare(credentials.password, user.password))) {
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role === "ADMIN" ? "STAFF" : user.role,
-          };
-        }
-        return null;
+        if (!user) return null;
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+        if (!isValid) return null;
+        return { id: user.id, name: user.name, email: user.email };
       },
     }),
   ],
   session: { strategy: "jwt" },
-  cookies: {
-    // เซ็ตให้ cross‐site cookie ได้
-    sessionToken: {
-      name: "next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: false, // dev
-      },
-    },
-    csrfToken: {
-      name: "next-auth.csrf-token",
-      options: {
-        httpOnly: false,
-        sameSite: "lax",
-        path: "/",
-        secure: false,
-      },
-    },
-  },
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.user = user;
+      if (user) {
+        token.sub = user.id;
+        token.name = user.name ?? token.name;
+      }
       return token;
     },
     async session({ session, token }) {
-      session.user = token.user as any;
+      if (session.user) {
+        session.user.id = token.sub as string;
+        session.user.name = token.name as string;
+      }
       return session;
     },
   },
+  pages: { signIn: "/auth/signin" },
 };
