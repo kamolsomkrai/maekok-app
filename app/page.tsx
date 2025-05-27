@@ -69,8 +69,14 @@ const codes: Record<string, string[]> = {
   'กลุ่มอาการทางระบบประสาท / การรับความรู้สึกผิดปกติ': ['R20.0', 'R20.2'],
   'กลุ่มอาการทางผิวหนัง': ['L85.9', 'L85.1', 'L66.1', 'L11.0', 'L81.0', 'L81.4', 'L81.9', 'L30.9', 'L81.8', 'L81.2'],
   'กลุ่มอาการทางระบบทางเดินอาหาร': ['R11.1', 'R11.0', 'R11.2', 'K52.9'],
-  'กลุ่มโรคต่อมไร้ท่อ / เมตาบอลิซม': ['E27.1'],
-}
+  'โรคต่อมไร้ท่อ / เมตาบอลิซม': ['E27.1'],
+  'โรคมะเร็ง': ['D04', 'C44', 'C67.9'],
+  'โรคไต': ['N17', 'N18'],
+  'โรคพิษจากสารหนู': ['T57.0'],
+  'โรคอื่น ๆ ที่เกี่ยวข้อง': ['Z58.2', 'Y97'],
+};
+
+
 
 const provinces = [
   { id: '50', name: 'เชียงใหม่' },
@@ -95,14 +101,13 @@ export default function ReportPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await axios.get<Submission[]>('/api/submissions', {
-        params: {
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString(),
-          province: selectedProvince,
-          hospitalIds: selectedHosps.map(h => h.id),
-        }
-      })
+      const params = new URLSearchParams()
+      if (startDate) params.append('startDate', startDate.toISOString())
+      if (endDate) params.append('endDate', endDate.toISOString())
+      if (selectedProvince) params.append('province', selectedProvince)
+      // แต่ละรพ. ก็ append ด้วยชื่อเดียวกัน
+      selectedHosps.forEach(h => params.append('hospitalIds', h.id))
+      const res = await axios.get<Submission[]>(`/api/submissions?${params.toString()}`)
       setData(res.data)
     } catch (err) {
       console.error(err)
@@ -145,7 +150,8 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    // max-w-7xl
+    <div className="p-6  mx-auto space-y-6">
       <div className="justify-center items-center flex flex-col space-y-2 mb-6">
         <h1 className="text-3xl font-bold text-blue-900">รายงานสรุปข้อมูลการเฝ้าระวังทางระบาดวิทยา</h1>
         <h1 className="text-3xl font-bold text-blue-900">กรณีการปนเปื้อนสารหนู พื้นที่จังหวัดเชียงใหม่ และเชียงราย</h1>
@@ -371,10 +377,10 @@ export default function ReportPage() {
               <Table className="bg-white">
                 <TableHeader className="bg-blue-100/50">
                   <TableRow>
-                    <TableHead className="w-[180px] text-blue-900 font-medium">สัปดาห์</TableHead>
-                    <TableHead className="min-w-[200px] text-blue-900 font-medium">โรงพยาบาล</TableHead>
+                    <TableHead className="w-[120] text-blue-900 text-center font-medium">สัปดาห์</TableHead>
+                    <TableHead className="min-w-[200px] text-blue-900 text-center font-medium">โรงพยาบาล</TableHead>
                     {Object.entries(codes).map(([group, list]) => (
-                      <TableHead key={group} className="whitespace-normal text-center text-blue-900 font-medium">
+                      <TableHead key={group} className="whitespace-normal text-center min-w-[140px] text-blue-900 font-medium">
                         <div className="flex flex-col items-center">
                           <span>{group}</span>
                           <span className="text-xs text-blue-600 mt-1">

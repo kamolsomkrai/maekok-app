@@ -9,26 +9,31 @@ export async function GET(request: Request) {
   const endDate = searchParams.get("endDate");
   const province = searchParams.get("province");
   const hospitalId = searchParams.get("hospitalId");
-  const hospitalIds = searchParams.getAll("hospitalIds");
+  // รับ hospitalIds เป็น array (จาก checkbox) และรองรับ hospitalId เดี่ยว
+  let hospitalIds = searchParams.getAll("hospitalIds");
+  if (hospitalId && hospitalIds.length === 0) {
+    hospitalIds = [hospitalId];
+  }
 
-  // ตั้งเงื่อนไขค้นหา
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = {};
+
   if (startDate && endDate) {
     where.weekStart = {
       gte: new Date(startDate),
       lte: new Date(endDate),
     };
   }
-  if (province) {
-    where.hospital = { province };
-  }
-  if (hospitalId) {
-    where.hospitalId = hospitalId;
-  }
+
+  // ถ้ามี hospitalIds ให้กรองด้วย hospitalId
   if (hospitalIds.length > 0) {
     where.hospitalId = { in: hospitalIds };
   }
+  // ถ้าไม่มี hospitalIds แต่เลือก province ให้กรองด้วย province
+  else if (province) {
+    where.hospital = { province };
+  }
+
   try {
     const submissions = await prisma.weekSubmission.findMany({
       where,
@@ -43,13 +48,39 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const { hospitalId, weekStart, weekEnd, counts } = body;
+  const { hospitalId, weekStart, weekEnd, counts } = await request.json();
   if (!hospitalId || !weekStart || !weekEnd || !counts) {
     return NextResponse.json({ message: "Missing fields" }, { status: 400 });
   }
+
   try {
-    const submission = await prisma.weekSubmission.create({
+    // ถ้ามีแล้วให้ update แทน create
+    const exist = await prisma.weekSubmission.findFirst({
+      where: {
+        hospitalId,
+        weekStart: new Date(weekStart),
+      },
+    });
+
+    if (exist) {
+      const updated = await prisma.weekSubmission.update({
+        where: { id: exist.id },
+        data: {
+          weekEnd: new Date(weekEnd),
+          icdEntries: {
+            deleteMany: {},
+            create: Object.entries(counts).map(([code, count]) => ({
+              code,
+              count: Number(count),
+            })),
+          },
+        },
+        include: { icdEntries: true, hospital: true },
+      });
+      return NextResponse.json({ success: true, submission: updated });
+    }
+
+    const created = await prisma.weekSubmission.create({
       data: {
         hospitalId,
         weekStart: new Date(weekStart),
@@ -63,7 +94,7 @@ export async function POST(request: Request) {
       },
       include: { icdEntries: true, hospital: true },
     });
-    return NextResponse.json({ success: true, submission });
+    return NextResponse.json({ success: true, submission: created });
   } catch (error) {
     console.error("POST /api/submissions error:", error);
     return NextResponse.json({ message: "Database error" }, { status: 500 });

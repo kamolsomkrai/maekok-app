@@ -22,11 +22,54 @@ interface Hospital {
   province: string;
 }
 
+interface Submission {
+  id: string;
+  hospitalId: string;
+  weekStart: string;
+  weekEnd: string;
+  icdEntries: {
+    code: string;
+    count: number;
+  }[];
+}
+
 const codes: Record<string, string[]> = {
   'กลุ่มอาการทางระบบประสาท / การรับความรู้สึกผิดปกติ': ['R20.0', 'R20.2'],
   'กลุ่มอาการทางผิวหนัง': ['L85.9', 'L85.1', 'L66.1', 'L11.0', 'L81.0', 'L81.4', 'L81.9', 'L30.9', 'L81.8', 'L81.2'],
   'กลุ่มอาการทางระบบทางเดินอาหาร': ['R11.1', 'R11.0', 'R11.2', 'K52.9'],
-  'กลุ่มโรคต่อมไร้ท่อ / เมตาบอลิซม': ['E27.1'],
+  'โรคต่อมไร้ท่อ / เมตาบอลิซม': ['E27.1'],
+  'โรคมะเร็ง': ['D04', 'C44', 'C67.9'],
+  'โรคไต': ['N17', 'N18'],
+  'โรคพิษจากสารหนู': ['T57.0'],
+  'โรคอื่น ๆ ที่เกี่ยวข้อง': ['Z58.2', 'Y97'],
+};
+
+const mapCodeToDescription: Record<string, string> = {
+  'R20.0': 'อาการชา',
+  'R20.2': 'อาการชา แปลบ เสียว',
+  'L85.9': 'ภาวะผิวหนังหนาตัว ไม่ระบุสาเหตุ',
+  'L85.1': 'Keratoderma Palmaris et Plantaris',
+  'L66.1': 'Lichen Planopilaris',
+  'L11.0': 'Acquired keratosis follicularis',
+  'L81.0': 'ฝ้า',
+  'L81.4': 'ภาวะผิวคล้ำจากเมลานิน',
+  'L81.9': 'ภาวะผิวคล้ำ ไม่ระบุสาเหตุ',
+  'L30.9': 'โรคผิวหนังอักเสบ ไม่ระบุสาเหตุ',
+  'L81.8': 'ภาวะสร้างเม็ดสีผิดปกติ อื่นๆ',
+  'L81.2': 'กระ จุดสีผิวเล็กๆ',
+  'R11.1': 'อาเจียน',
+  'R11.0': 'คลื่นไส้',
+  'R11.2': 'คลื่นไส้ร่วมกับอาเจียน',
+  'K52.9': 'ลำไส้อักเสบ ไม่ทราบสาเหตุ',
+  'E27.1': 'โรค Addison’s (ต่อมหมวกไตผิดปกติ ผิวคล้ำทั่วตัว)',
+  'D04': 'carcinoma in situ of skin',
+  'C44': 'other and unspecified malignant neoplasm of skin',
+  'C67.9': 'มะเร็งกระเพาะปัสสาวะ ไม่ระบุสาเหตุ',
+  'N17': 'ภาวะไตวายเฉียบพลัน',
+  'N18': 'ภาวะไตวายเรื้อรัง',
+  'T57.0': 'พิษจากสารหนู',
+  'Z58.2': 'Exposure to water pollution',
+  'Y97': 'envvironmental pollution related condition',
 };
 
 export default function SubmitPage() {
@@ -42,6 +85,34 @@ export default function SubmitPage() {
   );
   const [openHospitalPopover, setOpenHospitalPopover] = useState(false);
   const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (!selectedHospital || !weekStart || !weekEnd) return;
+
+    axios
+      .get<Submission[]>('/api/submissions', {
+        params: { startDate: weekStart, endDate: weekEnd, hospitalId: selectedHospital.id },
+      })
+      .then(res => {
+        if (res.data.length) {
+          const sub = res.data[0];
+          // สร้าง counts ใหม่ขึ้นมาไม่ต้องอ้างถึง counts เก่าด้านนอก
+          const newCounts = Object.fromEntries(
+            Object.keys(codes).flatMap(group =>
+              codes[group].map(code => {
+                const entry = sub.icdEntries.find(e => e.code === code);
+                return [code, entry ? entry.count : 0] as const;
+              })
+            )
+          );
+          setCounts(newCounts);
+        }
+        else if (res.data.length === 0) {
+          // ถ้าไม่มีข้อมูล ให้รีเซ็ต counts เป็น 0
+          setCounts(Object.fromEntries(Object.keys(codes).flatMap(group => codes[group].map(code => [code, 0]))));
+        }
+      })
+      .catch(console.error);
+  }, [selectedHospital, weekStart, weekEnd]);
 
   useEffect(() => {
     const fetchHospitals = async () => {
@@ -264,9 +335,10 @@ export default function SubmitPage() {
                 </CardHeader>
                 <CardContent className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {codeList.map(code => (
-                    <div key={code} className="flex items-center gap-4">
-                      <Label htmlFor={code} className="w-24 text-blue-800">
-                        {code}
+                    <div key={code} className="flex items-center justify-between gap-4">
+                      <Label htmlFor={code} className="w-64 text-blue-800">
+                        {mapCodeToDescription[code] || code} {' '}
+                        {"(" + code + ")"}
                       </Label>
                       <Input
                         id={code}
