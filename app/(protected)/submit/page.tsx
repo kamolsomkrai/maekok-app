@@ -33,6 +33,11 @@ interface Submission {
   }[];
 }
 
+const provinces = [
+  { id: '50', name: 'เชียงใหม่' },
+  { id: '57', name: 'เชียงราย' }
+]
+
 const codes: Record<string, string[]> = {
   'กลุ่มอาการทางระบบประสาท / การรับความรู้สึกผิดปกติ': ['R20.0', 'R20.2'],
   'กลุ่มอาการทางผิวหนัง': ['L85.9', 'L85.1', 'L66.1', 'L11.0', 'L81.0', 'L81.4', 'L81.9', 'L30.9', 'L81.8', 'L81.2'],
@@ -215,7 +220,7 @@ export default function SubmitPage() {
                     className="w-full justify-between border-blue-300 hover:bg-blue-50 text-blue-900"
                   >
                     {selectedHospital
-                      ? `${selectedHospital.name} (${selectedHospital.province})`
+                      ? `${selectedHospital.name}`
                       : "ค้นหาโรงพยาบาล..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -254,7 +259,12 @@ export default function SubmitPage() {
                                 <div className="font-medium text-blue-900 truncate">{hospital.name}</div>
                                 <div className="flex justify-between text-xs text-blue-600">
                                   <span>รหัส: {hospital.id}</span>
-                                  <span>จังหวัด: {hospital.province}</span>
+                                  {provinces.find(p => p.id === hospital.province)?.name && (
+                                    <span>จังหวัด: {provinces.find(p => p.id === hospital.province)?.name}</span>
+                                  )}
+                                  {!provinces.find(p => p.id === hospital.province)?.name && (
+                                    <span>จังหวัด: {hospital.province}</span>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -267,13 +277,13 @@ export default function SubmitPage() {
               </Popover>
               {selectedHospital && (
                 <div className="text-sm text-blue-700 mt-1">
-                  เลือกแล้ว: {selectedHospital.name} ({selectedHospital.province})
+                  {selectedHospital.name}  จ.{provinces.find(p => p.id === selectedHospital?.province)?.name}
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-blue-900 font-medium">เลือกวันอาทิตย์ของสัปดาห์</Label>
+              <Label className="text-blue-900 font-medium">เลือกสัปดาห์</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -282,7 +292,7 @@ export default function SubmitPage() {
                   >
                     {selectedSunday
                       ? format(selectedSunday, 'PPP', { locale: th })
-                      : 'เลือกวันอาทิตย์'}
+                      : 'เลือกเฉพาะวันอาทิตย์ของสัปดาห์'}
                     <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -302,7 +312,7 @@ export default function SubmitPage() {
               </Popover>
               {selectedSunday && (
                 <div className="text-sm text-blue-700 mt-1">
-                  เลือกแล้ว: {format(selectedSunday, 'PPP', { locale: th })}
+                  สัปดาห์ที่ {format(selectedSunday, 'II', { locale: th })} ของปี {format(selectedSunday, 'yyyy', { locale: th })}
                 </div>
               )}
             </div>
@@ -310,7 +320,7 @@ export default function SubmitPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-blue-900 font-medium">สัปดาห์เริ่มต้น</Label>
+              <Label className="text-blue-900 font-medium">วันที่เริ่มต้นสัปดาห์</Label>
               <Input
                 value={weekStart ? format(new Date(weekStart), 'PPP', { locale: th }) : ''}
                 readOnly
@@ -318,7 +328,7 @@ export default function SubmitPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-blue-900 font-medium">สัปดาห์สิ้นสุด</Label>
+              <Label className="text-blue-900 font-medium">วันที่สิ้นสุดสัปดาห์</Label>
               <Input
                 value={weekEnd ? format(new Date(weekEnd), 'PPP', { locale: th }) : ''}
                 readOnly
