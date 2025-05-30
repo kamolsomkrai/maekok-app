@@ -153,8 +153,8 @@ export default function ReportPage() {
     // max-w-7xl
     <div className="p-6  mx-auto space-y-6">
       <div className="justify-center items-center flex flex-col space-y-2 mb-6">
-        <h1 className="text-3xl font-bold text-blue-900">รายงานสรุปข้อมูลการเฝ้าระวังทางระบาดวิทยา</h1>
-        <h1 className="text-3xl font-bold text-blue-900">กรณีการปนเปื้อนสารหนู พื้นที่จังหวัดเชียงใหม่ และเชียงราย</h1>
+        <h1 className="text-3xl font-bold text-blue-900">รายงานสรุปข้อมูลเฝ้าระวังการเจ็บป่วย</h1>
+        <h1 className="text-3xl font-bold text-blue-900">ที่อาจเกี่ยวข้องกับการสัมผัสสารหนู เขตสุขภาพที่ 1</h1>
       </div>
 
       <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">

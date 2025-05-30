@@ -67,14 +67,14 @@ const mapCodeToDescription: Record<string, string> = {
   'R11.2': 'คลื่นไส้ร่วมกับอาเจียน',
   'K52.9': 'ลำไส้อักเสบ ไม่ทราบสาเหตุ',
   'E27.1': 'โรค Addison’s (ต่อมหมวกไตผิดปกติ ผิวคล้ำทั่วตัว)',
-  'D04': 'carcinoma in situ of skin',
-  'C44': 'other and unspecified malignant neoplasm of skin',
+  'D04': 'Carcinoma in Situ of Skin',
+  'C44': 'Other And Unspecified Malignant Neoplasm of Skin',
   'C67.9': 'มะเร็งกระเพาะปัสสาวะ ไม่ระบุสาเหตุ',
   'N17': 'ภาวะไตวายเฉียบพลัน',
   'N18': 'ภาวะไตวายเรื้อรัง',
   'T57.0': 'พิษจากสารหนู',
-  'Z58.2': 'Exposure to water pollution',
-  'Y97': 'envvironmental pollution related condition',
+  'Z58.2': 'Exposure to Water Pollution',
+  'Y97': 'Environmental Pollution Related Condition',
 };
 
 export default function SubmitPage() {
@@ -199,8 +199,8 @@ export default function SubmitPage() {
       <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-cyan-50">
         <CardHeader className="bg-gradient-to-r from-blue-800 to-blue-600 rounded-t-lg">
           <div className="space-y-2">
-            <CardTitle className="text-cyan-50 text-2xl font-bold">
-              ระบบรายงานโรคจากการปนเปื้อนสารหนู พื้นที่จังหวัดเชียงใหม่ และเชียงราย
+            <CardTitle className="text-cyan-50 text-lg font-bold">
+              แบบฟอร์มบันทึกข้อมูลเฝ้าระวังการเจ็บป่วยที่อาจเกี่ยวข้องกับการสัมผัสสารหนู เขตสุขภาพที่ 1
             </CardTitle>
             <CardDescription className="text-blue-200">
               กรุณากรอกข้อมูลตามสัปดาห์ที่ต้องการรายงาน
@@ -347,20 +347,30 @@ export default function SubmitPage() {
                   {codeList.map(code => (
                     <div key={code} className="flex items-center justify-between gap-4">
                       <Label htmlFor={code} className="w-64 text-blue-800">
-                        {mapCodeToDescription[code] || code} {' '}
-                        {"(" + code + ")"}
+                        {mapCodeToDescription[code] || code} ({code})
                       </Label>
                       <Input
                         id={code}
-                        type="number"
-                        min={0}
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={counts[code]}
-                        onChange={e => handleChange(code, Number(e.target.value))}
+                        onChange={e => {
+                          const onlyDigits = e.target.value.replace(/\D/g, '');
+                          handleChange(code, onlyDigits === '' ? 0 : Number(onlyDigits));
+                        }}
+                        onKeyPress={e => {
+                          if (!/[0-9]/.test(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
                         required
                         className="w-24 border-blue-200 focus:ring-2 focus:ring-cyan-500"
                       />
+                      <span className='w-20 text-blue-800 text-sm'>คน</span>
                     </div>
                   ))}
+
                 </CardContent>
               </Card>
             ))}
