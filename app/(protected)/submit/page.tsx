@@ -367,7 +367,7 @@ export default function SubmitPage() {
                         required
                         className="w-24 border-blue-200 focus:ring-2 focus:ring-cyan-500"
                       />
-                      <span className='w-20 text-blue-800 text-sm'>คน</span>
+                      <span className='w-20 text-blue-800 text-sm'>ราย</span>
                     </div>
                   ))}
 
