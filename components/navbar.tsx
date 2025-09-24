@@ -26,7 +26,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <h1 className="text-white font-extrabold text-xl leading-tight">
-                ระบบบันทึกข้อมูลเฝ้าระวังการเจ็บป่วย
+                ระบบเฝ้าระวังการเจ็บป่วย
               </h1>
               <h2 className="text-white font-medium text-sm mt-1">
                 ที่อาจเกี่ยวข้องกับการสัมผัสสารหนู เขตสุขภาพที่ 1

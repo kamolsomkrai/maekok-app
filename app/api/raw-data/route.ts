@@ -28,7 +28,10 @@ export async function GET(request: Request) {
 
     const [data, totalCount] = await prisma.$transaction([
       prisma.maekok_summary_aggregated.findMany({
-        where,
+        where: {
+          ...where,
+          hospcode: { in: ["10674", "11126"] },
+        },
         orderBy: { date_serv: "desc" },
         ...(!exportAll && {
           skip: skip,
