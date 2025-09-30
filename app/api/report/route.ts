@@ -28,6 +28,7 @@ export async function GET(request: Request) {
   const hospitalIds = searchParams.getAll("hospitalIds");
 
   const where: Prisma.maekok_summary_aggregatedWhereInput = {};
+  where.date_serv = {};
   if (startDate)
     where.date_serv = { ...where.date_serv, gte: new Date(startDate) };
   if (endDate) where.date_serv = { ...where.date_serv, lte: new Date(endDate) };
