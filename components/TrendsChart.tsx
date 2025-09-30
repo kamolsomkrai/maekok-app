@@ -98,7 +98,9 @@ const TrendsChart: React.FC<TrendsChartProps> = ({ data, loading }) => {
         },
         grid: {
           color: '#e0f2fe',
-          drawBorder: false
+        },
+        border: {
+          display: false
         }
       },
       y: {
@@ -111,7 +113,9 @@ const TrendsChart: React.FC<TrendsChartProps> = ({ data, loading }) => {
         },
         grid: {
           color: '#e0f2fe',
-          drawBorder: false
+        },
+        border: {
+          display: false
         }
       }
     },
