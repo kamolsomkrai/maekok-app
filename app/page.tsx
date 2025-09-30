@@ -214,7 +214,7 @@ export default function ReportPage() {
       const params = buildParams();
       fetchData(currentPage, params);
     }
-  }, [currentPage]);
+  }, [currentPage, buildParams, fetchData]);
 
   const handleExport = async () => {
     try {

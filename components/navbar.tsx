@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Home, FileText, ChevronRight } from 'lucide-react'
+import { Home, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import logo from '@/public/symbol.png'
 
