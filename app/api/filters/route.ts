@@ -10,6 +10,8 @@ export interface FilterData {
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const filterprovinceCodes = ["50", "57"];
+  const filterhospitalIds = ["10674", "11126"];
   try {
     const [hospitalData, provinceData, groupData] = await prisma.$transaction([
       prisma.maekok_summary_aggregated.findMany({
@@ -18,6 +20,7 @@ export async function GET() {
           hosname: true,
           provcode: true,
         },
+        where: { hospcode: { in: filterhospitalIds } },
         distinct: ["hospcode", "hosname", "provcode"],
         orderBy: {
           hosname: "asc",
@@ -25,7 +28,7 @@ export async function GET() {
       }),
       prisma.maekok_summary_aggregated.findMany({
         where: {
-          provcode: { not: null },
+          provcode: { not: null, in: filterprovinceCodes },
           provname: { not: null },
         },
         select: {

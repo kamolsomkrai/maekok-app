@@ -352,9 +352,9 @@ export default function ReportPage() {
 
         {/* Section: Top 5 Rankings */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Top5List title="5 จังหวัดที่พบผู้ป่วยสูงสุด" data={top5Data.topProvinces} icon={<MapPin className="h-5 w-5 text-blue-600" />} loading={loading.dashboard} />
-          <Top5List title="5 โรงพยาบาลที่พบผู้ป่วยสูงสุด" data={top5Data.topHospitals} icon={<Building className="h-5 w-5 text-blue-600" />} loading={loading.dashboard} />
-          <Top5List title="5 กลุ่มอาการที่พบสูงสุด" data={top5Data.topGroups} icon={<ListChecks className="h-5 w-5 text-blue-600" />} loading={loading.dashboard} />
+          <Top5List title="จังหวัดที่พบผู้ป่วยสูงสุด" data={top5Data.topProvinces} icon={<MapPin className="h-5 w-5 text-blue-600" />} loading={loading.dashboard} />
+          <Top5List title="โรงพยาบาลที่พบผู้ป่วยสูงสุด" data={top5Data.topHospitals} icon={<Building className="h-5 w-5 text-blue-600" />} loading={loading.dashboard} />
+          <Top5List title="กลุ่มอาการที่พบสูงสุด" data={top5Data.topGroups} icon={<ListChecks className="h-5 w-5 text-blue-600" />} loading={loading.dashboard} />
         </div>
         {/* Section: Data Table */}
         <Card className="border-0 shadow-lg">
