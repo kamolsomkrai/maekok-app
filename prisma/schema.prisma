@@ -1,74 +1,52 @@
-// prisma/schema.prisma
- generator client {
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
   provider = "prisma-client-js"
- }
-
- datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
- }
-
- model User {
-  id           String             @id @default(cuid())
-  name         String
-  username     String             @unique
-  email        String?            @unique
-  password     String
-  sessions     Session[]
-  accounts     Account[]
- }
-
-model Hospital {
-  id           String             @id @default(cuid())
-  name         String             @unique
-  province     String
-  submissions  WeekSubmission[]
 }
 
- model WeekSubmission {
-  id           String      @id @default(cuid())
-  hospital     Hospital    @relation(fields: [hospitalId], references: [id])
-  hospitalId   String
-  weekStart    DateTime
-  weekEnd      DateTime
-  createdAt    DateTime    @default(now())
-  icdEntries   ICDEntry[]
- }
-
- model ICDEntry {
-  id           String          @id @default(cuid())
-  submission   WeekSubmission  @relation(fields: [submissionId], references: [id])
-  submissionId String
-  code         String
-  count        Int
- }
-
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+// NextAuth Models
 model Account {
-  id                 String   @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String   @map("provider_account_id")
-  refresh_token      String?  @map("refresh_token")
-  access_token       String?  @map("access_token")
-  expires_at         Int?     @map("expires_at")
-  token_type         String?  @map("token_type")
-  scope              String?
-  id_token           String?  @map("id_token")
-  session_state      String?  @map("session_state")
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
 model Session {
   id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token")
+  sessionToken String   @unique
   userId       String
   expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  user User @relation(fields: [userId], references: [id])
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  username      String?   @unique
+  password      String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
 }
 
 model VerificationToken {
@@ -78,3 +56,23 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+// [UPDATED] Model now matches the final table structure with all lowercase column names.
+model maekok_summary_aggregated {
+  hospcode      String
+  hosname       String?
+  provcode      String?
+  provname      String?
+  dist_name_th  String?
+  date_serv     DateTime @db.Date
+  diagcode      String
+  groupname     String? // Changed from groupName
+  total_count   BigInt?
+
+  @@id([hospcode, date_serv, diagcode])
+  @@index([date_serv])
+  @@index([hospcode])
+  @@index([provcode])
+  @@index([groupname])
+  @@map("maekok_summary_aggregated")
+}
+

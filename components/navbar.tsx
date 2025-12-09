@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Home, FileText, ChevronRight } from 'lucide-react'
+import { Home, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import logo from '@/public/symbol.png'
 
@@ -26,7 +26,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <h1 className="text-white font-extrabold text-xl leading-tight">
-                ระบบบันทึกข้อมูลเฝ้าระวังการเจ็บป่วย
+                ระบบเฝ้าระวังการเจ็บป่วย
               </h1>
               <h2 className="text-white font-medium text-sm mt-1">
                 ที่อาจเกี่ยวข้องกับการสัมผัสสารหนู เขตสุขภาพที่ 1
@@ -36,7 +36,7 @@ export default function Navbar() {
 
           {/* Navigation buttons on the right */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/">
+            {/* <Link href="/">
               <Button
                 variant={pathname === '/' ? 'secondary' : 'ghost'}
                 className={`text-white hover:bg-blue-700 ${pathname === '/' ? 'bg-blue-900' : ''}`}
@@ -44,8 +44,8 @@ export default function Navbar() {
                 <Home className="mr-2 h-4 w-4" />
                 หน้าหลัก
               </Button>
-            </Link>
-            <Link href="/submit">
+            </Link> */}
+            {/* <Link href="/submit">
               <Button
                 variant={pathname === '/submit' ? 'secondary' : 'ghost'}
                 className={`text-white hover:bg-blue-700 ${pathname === '/submit' ? 'bg-blue-900' : ''}`}
@@ -53,7 +53,7 @@ export default function Navbar() {
                 <FileText className="mr-2 h-4 w-4" />
                 กรอกข้อมูล
               </Button>
-            </Link>
+            </Link> */}
           </div>
 
           {/* Mobile menu */}
@@ -69,7 +69,7 @@ export default function Navbar() {
                   <ChevronRight className="ml-auto h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/submit">
+              {/* <Link href="/submit">
                 <Button
                   variant={pathname === '/submit' ? 'secondary' : 'ghost'}
                   className={`w-full text-white justify-start ${pathname === '/submit' ? 'bg-blue-900' : ''}`}
@@ -78,7 +78,7 @@ export default function Navbar() {
                   กรอกข้อมูล
                   <ChevronRight className="ml-auto h-4 w-4" />
                 </Button>
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>
