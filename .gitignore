@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Security - ป้องกันการ commit malware และ log ที่ไม่จำเป็น
+xmrig*
+scanner_linux
+*.log
+failed.log
+monitor.log
+exploited.log
+scanner_deployed.log
+data.log
+*.tar.gz

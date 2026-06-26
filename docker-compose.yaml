@@ -9,15 +9,20 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    # ไม่ mount ไดเรกทอรีทั้งโฟลเดอร์เข้า container เพื่อความปลอดภัย
+    # ไฟล์ทั้งหมดถูก copy เข้า image ตอน build แล้วใน Dockerfile (multi-stage)
+    # ต้อง mount เฉพาะ .env สำหรับ runtime config
     volumes:
-      - .:/app:cached
-      - /app/node_modules
-      - /app/.next
-      - ./public:/app/public
-      - .env:/app/.env
+      - .env:/app/.env:ro
     command: yarn start
     networks:
       - nginx_networks
+    # จำกัดทรัพยากรเพื่อป้องกันการรัน miner
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
 
 networks:
   nginx_networks:
